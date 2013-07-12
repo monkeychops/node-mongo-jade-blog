@@ -56,7 +56,7 @@ app.post('/blog/new', function(req, res){
 app.get('/blog/:year/:month/:slug', function(req, res) {
 
 	var year = req.params.year
-      , month = req.params.month.format('YYYY[/]MMMM[/]')
+      , month = moment(req.params.month, 'MMMM').format('MM')
       , slug = req.params.slug
       , startDate = new Date(year, month - 1, 1)
       , endDate = new Date(year, month, 1);

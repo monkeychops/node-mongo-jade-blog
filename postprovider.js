@@ -1,10 +1,8 @@
-var DATE_SEPERATOR = '/'
-
 var mongoose = require('mongoose'),
 	slug = require('slug'),
 	moment = require('moment');
 	
-mongoose.connect('mongodb://localhost/x');
+mongoose.connect('mongodb://localhost/m_b_blog');
 
 var Schema = mongoose.Schema
   , ObjectId = Schema.ObjectId;
@@ -33,7 +31,7 @@ Post.pre('save', function (next) {
 	    formatted = date.format('YYYY[/]MMMM[/]');
 
     this.slug = slug(this.title);
-    this.url = formatted + this.slug;
+    this.url = formatted.toLowerCase() + this.slug;
     next();
     
 });
