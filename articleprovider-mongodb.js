@@ -7,10 +7,11 @@ var ObjectID = require('mongodb').ObjectID;
 ArticleProvider = function(host, port) {
   this.db= new Db('node-mongo-blog', new Server(host, port, {auto_reconnect: true}, {}));
   this.db.open(function(error, db) {
+  
   if(error) {
-  console.log(error);
+  	console.log(error);
   } else {
-  console.log("connected to mongod with no problems...");
+  	console.log("connected to mongod with no problems...");
   }
 });
 };

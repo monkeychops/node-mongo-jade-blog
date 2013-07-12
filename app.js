@@ -2,13 +2,11 @@
  * Module dependencies.
  */
 
-var express = require('express');
-var ArticleProvider = require('./articleprovider-mongodb').ArticleProvider;
-
-var app = module.exports = express();
+var express = require('express'),
+	moment = require('moment'),
+	app = express();
 
 // Configuration
-
 app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
@@ -27,27 +25,27 @@ app.configure('production', function(){
   app.use(express.errorHandler()); 
 });
 
-var articleProvider = new ArticleProvider('localhost', 27017);
-// Routes
+var PostProvider = require('./postprovider').PostProvider;
+var PostProvider= new PostProvider();
 
-app.get('/', function(req, res){
-	articleProvider.findAll( function(error,docs){
-		res.render('index.jade', { 
-			title: 'Blog',
-			articles:docs
-		});
+// Routes
+app.get('/', function(req, res){    
+	PostProvider.findAll( function(error, docs){        
+		res.render('index.jade', {
+			title: 'Blog', 
+			articles: docs
+		});    
 	})
 });
 
 app.get('/blog/new', function(req, res) {
-    res.render('blog_new.jade', { locals: {
+    res.render('blog_new.jade', {
         title: 'New Post'
-    }
     });
 });
 
 app.post('/blog/new', function(req, res){
-    articleProvider.save({
+    PostProvider.save({
         title: req.param('title'),
         body: req.param('body')
     }, function( error, docs) {
@@ -55,19 +53,24 @@ app.post('/blog/new', function(req, res){
     });
 });
 
-app.get('/blog/:id', function(req, res) {
-    articleProvider.findById(req.params.id, function(error, article) {
-        res.render('blog_show.jade',
-        { locals: {
-            title: article.title,
-            article:article
-        }
+app.get('/blog/:year/:month/:slug', function(req, res) {
+
+	var year = req.params.year
+      , month = req.params.month.format('YYYY[/]MMMM[/]')
+      , slug = req.params.slug
+      , startDate = new Date(year, month - 1, 1)
+      , endDate = new Date(year, month, 1);
+	
+    PostProvider.findBySlug(year, month, slug, startDate, endDate, function(error, article) {
+        res.render('blog_show.jade', {
+	         title: article.title,
+	         article: article
         });
     });
 });
 
 app.post('/blog/addComment', function(req, res) {
-    articleProvider.addCommentToArticle(req.param('_id'), {
+    PostProvider.addCommentToArticle(req.param('_id'), {
         person: req.param('person'),
         comment: req.param('comment'),
         created_at: new Date()
